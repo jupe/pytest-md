@@ -37,7 +37,7 @@ class MarkdownPlugin:
         def emoji(short, verbose):
             """Return the short or verbose emoji based on self.config."""
 
-            if self.config.option.verbose > 0:
+            if self.config.option.md_verbose > 0:
                 return verbose
 
             return short
@@ -213,11 +213,12 @@ class MarkdownPlugin:
         project_link = self.create_project_link()
         summary = self.create_summary()
 
+
         self.report += f"{header}\n"
         self.report += f"{project_link}\n"
         self.report += f"{summary}\n"
 
-        if self.config.option.verbose > 0:
+        if self.config.option.md_verbose > 0:
             results = self.create_results()
             self.report += f"{results}"
 
@@ -235,6 +236,12 @@ def pytest_addoption(parser):
         metavar="path",
         default=None,
         help="create markdown report file at given path.",
+    )
+    group.addoption(
+        "--md-verbose",
+        action="store_true",
+        dest="md_verbose",
+        help="individual test report",
     )
 
 
