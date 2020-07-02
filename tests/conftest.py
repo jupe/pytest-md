@@ -1,6 +1,7 @@
 import enum
 import datetime
 import textwrap
+import re
 
 import freezegun
 import pytest
@@ -107,6 +108,7 @@ class Mode(enum.Enum):
 
     NORMAL = "normal"
     VERBOSE = "verbose"
+    METADATA = 'metadata'
     EMOJI_NORMAL = "emoji_normal"
     EMOJI_VERBOSE = "emoji_verbose"
 
@@ -117,6 +119,7 @@ def fixture_cli_options(mode):
     cli_options = {
         Mode.NORMAL: [],
         Mode.VERBOSE: ["--md-verbose"],
+        Mode.METADATA: ["--md-metadata", "--metadata", "key", "value"],
         Mode.EMOJI_NORMAL: ["--emoji"],
         Mode.EMOJI_VERBOSE: ["--md-verbose", "--emoji"],
     }
@@ -241,6 +244,34 @@ def fixture_report_content(mode, now):
             `test_xpass` 0.00s ⏱
             """
         )
+
+    if mode is Mode.METADATA:
+
+        return re.compile(textwrap.dedent(
+            f"""\
+            \\# Test Report
+    
+            \\*Report generated on {report_date} at {report_time} by \\[pytest-md\\]\\*
+
+            \\[pytest-md\\]\\: https://github\\.com/hackebrot/pytest-md
+    
+            \\#\\# Summary
+    
+            8 tests ran in 0.00 seconds
+        
+            - 1 error
+            - 1 failed
+            - 3 passed
+            - 1 skipped
+            - 1 xfailed
+            - 1 xpassed
+        
+            \\#\\# Metadata
+        
+            [\w\W]+
+            key\\: value
+            [\w\W]+
+        """))
 
     # Return the default report for Mode.NORMAL and Mode.VERBOSE
     if mode is Mode.VERBOSE:
@@ -371,6 +402,8 @@ def pytest_generate_tests(metafunc):
         [
             Mode.NORMAL,
             Mode.VERBOSE,
+            Mode.METADATA,
+            pytest.param(Mode.METADATA, marks=pytest.mark.metadata),
             pytest.param(Mode.EMOJI_NORMAL, marks=pytest.mark.emoji),
             pytest.param(Mode.EMOJI_VERBOSE, marks=pytest.mark.emoji),
         ],
@@ -378,10 +411,14 @@ def pytest_generate_tests(metafunc):
 
 
 def pytest_collection_modifyitems(items, config):
-    """Skip tests marked with "emoji" if pytest-emoji is not installed."""
-    if config.pluginmanager.hasplugin("emoji"):
+    """Skip tests marked with "emoji" if pytest-emoji and pytest-metadata is not installed."""
+    has_emoji = config.pluginmanager.hasplugin("emoji")
+    has_metadata = config.pluginmanager.hasplugin("metadata")
+    if has_emoji and has_metadata:
         return
 
     for item in items:
-        if item.get_closest_marker("emoji"):
+        if item.get_closest_marker("emoji") and not has_emoji:
             item.add_marker(pytest.mark.skip(reason="pytest-emoji is not installed"))
+        if item.get_closest_marker("metadata") and not has_metadata:
+            item.add_marker(pytest.mark.skip(reason="pytest-metadata is not installed"))

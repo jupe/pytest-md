@@ -97,7 +97,7 @@ $ pytest --md report.md
 emojis in the generated Markdown test report:
 
 ```text
-$ pytest --emoji -v --md report.md
+$ pytest --emoji --md-verbose --md report.md
 ```
 
 ```Markdown
@@ -119,7 +119,49 @@ $ pytest --emoji -v --md report.md
 - 1 error 😡
 ```
 
+## pytest-metadata
+
+**pytest-md** also integrates with [pytest-metadata], which allows us to include
+metadata in the generated Markdown test report:
+
+```text
+$ pytest --md-metadata --metadata key=value
+```
+
+````markdown
+# Test Report
+
+*Report generated on 02-Jul-2020 at 14:11:48 by [pytest-md]*
+
+[pytest-md]: https://github.com/hackebrot/pytest-md
+
+## Summary
+
+8 tests ran in 0.08 seconds
+
+- 1 error
+- 1 failed
+- 3 passed
+- 1 skipped
+- 1 xfailed
+- 1 xpassed
+
+## Metadata
+
+Python: 3.7.7
+Platform: Darwin-19.5.0-x86_64-i386-64bit
+Packages
+  pytest: 5.4.3
+  py: 1.9.0
+  pluggy: 0.13.1
+key: value
+Plugins
+  metadata: 1.10.0
+
+````
+
 [pytest-emoji]: https://github.com/hackebrot/pytest-emoji
+[pytest-metadata]: https://github.com/pytest-dev/pytest-metadata
 
 ## Credits
 

@@ -20,11 +20,14 @@ class Outcome(enum.Enum):
 class MarkdownPlugin:
     """Plugin for generating Markdown reports."""
 
-    def __init__(self, config, report_path, emojis_enabled: bool = False) -> None:
+    def __init__(self, config, report_path,
+                 emojis_enabled: bool = False,
+                 metadata_installed: bool = False) -> None:
         self.config = config
         self.report_path = report_path
         self.report = ""
         self.emojis_enabled = emojis_enabled
+        self.metadata_installed = metadata_installed
 
         self.reports: Dict[Outcome, List] = collections.defaultdict(list)
 
@@ -151,6 +154,25 @@ class MarkdownPlugin:
 
         return summary + "\n\n" + outcome_text
 
+    def create_metadata(self) -> str:
+        """ Create environment section for the Markdown report."""
+        outcome_text = ""
+
+        def _generate_md(items, indentation=0):
+            nonlocal outcome_text
+            for key, value in items:
+                if isinstance(value, dict):
+                    outcome_text += f'{" "*indentation}{key}\n'
+                    _generate_md(value.items(), indentation+2)
+                else:
+                    outcome_text += f'{" "*indentation}{key}: {value}\n'
+
+        _generate_md(self.config._metadata.items())
+
+        summary = "## Metadata"
+
+        return summary + "\n\n" + outcome_text
+
     def create_results(self) -> str:
         """Create results for the individual tests for the Markdown report."""
 
@@ -213,12 +235,16 @@ class MarkdownPlugin:
         project_link = self.create_project_link()
         summary = self.create_summary()
 
-
         self.report += f"{header}\n"
         self.report += f"{project_link}\n"
         self.report += f"{summary}\n"
 
-        if self.config.option.md_verbose > 0:
+        if self.config.option.md_metadata:
+            assert self.metadata_installed, 'pytest-metadata is not installed'
+            metadata = self.create_metadata()
+            self.report += f"{metadata}"
+
+        if self.config.option.md_verbose:
             results = self.create_results()
             self.report += f"{results}"
 
@@ -236,6 +262,12 @@ def pytest_addoption(parser):
         metavar="path",
         default=None,
         help="create markdown report file at given path.",
+    )
+    group.addoption(
+        "--md-metadata",
+        action="store_true",
+        dest="md_metadata",
+        help="Add environment section to report",
     )
     group.addoption(
         "--md-verbose",
@@ -265,6 +297,7 @@ def pytest_configure(config) -> None:
         config,
         report_path=pathlib.Path(mdpath).expanduser().resolve(),
         emojis_enabled=emojis_enabled(),
+        metadata_installed=config.pluginmanager.hasplugin('metadata')
     )
 
     config.pluginmanager.register(config._md, "md_plugin")
