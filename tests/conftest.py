@@ -250,27 +250,27 @@ def fixture_report_content(mode, now):
         return re.compile(textwrap.dedent(
             f"""\
             \\# Test Report
-    
+
             \\*Report generated on {report_date} at {report_time} by \\[pytest-md\\]\\*
 
             \\[pytest-md\\]\\: https://github\\.com/hackebrot/pytest-md
-    
+
             \\#\\# Summary
-    
+
             8 tests ran in 0.00 seconds
-        
+
             - 1 error
             - 1 failed
             - 3 passed
             - 1 skipped
             - 1 xfailed
             - 1 xpassed
-        
+
             \\#\\# Metadata
-        
-            [\w\W]+
+
+            [\\w\\W]+
             key\\: value
-            [\w\W]+
+            [\\w\\W]+
         """))
 
     # Return the default report for Mode.NORMAL and Mode.VERBOSE

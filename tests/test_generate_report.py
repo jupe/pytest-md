@@ -14,9 +14,6 @@ def test_generate_report(testdir, cli_options, report_path, report_content):
 
     # Check the generated Markdown report
     if isinstance(report_content, Pattern):
-        with open('/Users/jussiva/git/github/opentmi/pytest-md/content.log', "w") as file:
-            file.writelines(report)
-            file.writelines(report_content.pattern)
         assert report_content.match(report)
     else:
         assert report == report_content
