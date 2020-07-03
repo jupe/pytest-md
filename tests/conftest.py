@@ -410,7 +410,10 @@ def pytest_generate_tests(metafunc):
 
 
 def pytest_collection_modifyitems(items, config):
-    """Skip tests marked with "emoji" if pytest-emoji and pytest-metadata is not installed."""
+    """
+    Skip tests marked with "emoji" if pytest-emoji and
+    pytest-metadata is not installed.
+    """
     has_emoji = config.pluginmanager.hasplugin("emoji")
     has_metadata = config.pluginmanager.hasplugin("metadata")
     if has_emoji and has_metadata:
