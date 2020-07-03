@@ -10,11 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: ["py36", "py37", "py36-emoji", "py37-emoji", "mypy", "flake8"]
+        environment: ["py36", "py37", "py36-metadata", "py37-metadata", "py36-emoji", "py37-emoji", "mypy", "flake8"]
         include:
           - environment: "py36"
             python: "3.6"
           - environment: "py37"
+            python: "3.7"
+          - environment: "py36-metadata"
+            python: "3.6"
+          - environment: "py37-metadata"
             python: "3.7"
           - environment: "py36-emoji"
             python: "3.6"

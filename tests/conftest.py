@@ -380,7 +380,7 @@ def fixture_report_content(mode, now):
 @pytest.fixture(name="report_path")
 def fixture_report_path(tmp_path):
     """Return a temporary path for writing the Markdown report."""
-    return tmp_path / "emoji_report.md"
+    return tmp_path / "report.md"
 
 
 def pytest_make_parametrize_id(config, val):
@@ -402,7 +402,6 @@ def pytest_generate_tests(metafunc):
         [
             Mode.NORMAL,
             Mode.VERBOSE,
-            Mode.METADATA,
             pytest.param(Mode.METADATA, marks=pytest.mark.metadata),
             pytest.param(Mode.EMOJI_NORMAL, marks=pytest.mark.emoji),
             pytest.param(Mode.EMOJI_VERBOSE, marks=pytest.mark.emoji),
