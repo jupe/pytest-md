@@ -3,6 +3,7 @@ import datetime
 import enum
 import pathlib
 import time
+import textwrap
 from typing import Dict, List
 
 
@@ -171,7 +172,7 @@ class MarkdownPlugin:
 
         summary = "## Metadata"
 
-        return summary + "\n\n" + outcome_text
+        return summary, outcome_text
 
     def create_results(self) -> str:
         """Create results for the individual tests for the Markdown report."""
@@ -223,6 +224,16 @@ class MarkdownPlugin:
 
         return results
 
+    def create_collapse(self, title, content):
+        return textwrap.dedent(f"""\
+        <details>
+        <summary>{title}</summary>
+        <p>
+        {content}
+        </p>
+        </details>
+        """)
+
     def pytest_sessionfinish(self, session) -> None:
         """Hook implementation that generates a Markdown report and writes it
         to disk.
@@ -241,12 +252,19 @@ class MarkdownPlugin:
 
         if self.config.option.md_metadata:
             assert self.metadata_installed, 'pytest-metadata is not installed'
-            metadata = self.create_metadata()
-            self.report += f"{metadata}"
+            title, metadata = self.create_metadata()
+
+            if self.config.option.md_collapse:
+                self.report += self.create_collapse(title, metadata)
+            else:
+                self.report += f"{title}\n\n{metadata}"
 
         if self.config.option.md_verbose:
             results = self.create_results()
-            self.report += f"{results}"
+            if self.config.option.md_collapse:
+                self.report += self.create_collapse("Individual test results", results)
+            else:
+                self.report += f"{results}"
 
         self.report_path.write_text(self.report.rstrip() + "\n", encoding="utf-8")
 
@@ -274,6 +292,12 @@ def pytest_addoption(parser):
         action="store_true",
         dest="md_verbose",
         help="individual test report",
+    )
+    group.addoption(
+        "--md-collapse",
+        action="store_true",
+        dest="md_collapse",
+        help="Collapse all but summary",
     )
 
 
