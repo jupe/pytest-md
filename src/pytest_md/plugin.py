@@ -162,10 +162,10 @@ class MarkdownPlugin:
             nonlocal outcome_text
             for key, value in items:
                 if isinstance(value, dict):
-                    outcome_text += f'{" "*indentation}{key}\n'
+                    outcome_text += f'{" "*indentation}- {key}\n'
                     _generate_md(value.items(), indentation+2)
                 else:
-                    outcome_text += f'{" "*indentation}{key}: {value}\n'
+                    outcome_text += f'{" "*indentation}- {key}: {value}\n'
 
         _generate_md(self.config._metadata.items())
 

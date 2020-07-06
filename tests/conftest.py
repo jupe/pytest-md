@@ -269,7 +269,7 @@ def fixture_report_content(mode, now):
             \\#\\# Metadata
 
             [\\w\\W]+
-            key\\: value
+            - key\\: value
             [\\w\\W]+
         """))
 
