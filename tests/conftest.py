@@ -108,6 +108,7 @@ class Mode(enum.Enum):
 
     NORMAL = "normal"
     VERBOSE = "verbose"
+    COLLAPSE = 'collapse'
     METADATA = 'metadata'
     EMOJI_NORMAL = "emoji_normal"
     EMOJI_VERBOSE = "emoji_verbose"
@@ -119,6 +120,7 @@ def fixture_cli_options(mode):
     cli_options = {
         Mode.NORMAL: [],
         Mode.VERBOSE: ["--md-verbose"],
+        Mode.COLLAPSE: ["--md-verbose", "--md-collapse"],
         Mode.METADATA: ["--md-metadata", "--metadata", "key", "value"],
         Mode.EMOJI_NORMAL: ["--emoji"],
         Mode.EMOJI_VERBOSE: ["--md-verbose", "--emoji"],
@@ -355,6 +357,94 @@ def fixture_report_content(mode, now):
             """
         )
 
+    if mode is Mode.COLLAPSE:
+        return textwrap.dedent(
+            f"""\
+            # Test Report
+
+            *Report generated on {report_date} at {report_time} by [pytest-md]*
+
+            [pytest-md]: https://github.com/hackebrot/pytest-md
+
+            ## Summary
+
+            8 tests ran in 0.00 seconds
+
+            - 1 error
+            - 1 failed
+            - 3 passed
+            - 1 skipped
+            - 1 xfailed
+            - 1 xpassed
+
+            <details>
+            <summary>Individual test results</summary>
+            <p>
+
+            ## 1 error
+
+            ### test_emoji_tests.py
+
+            `error at setup of test_error` 0.00s
+
+            ```
+            @pytest.fixture
+                def number():
+            >       return 1234 / 0
+            E       ZeroDivisionError: division by zero
+
+            test_emoji_tests.py:37: ZeroDivisionError
+            ```
+
+            ## 1 failed
+
+            ### test_emoji_tests.py
+
+            `test_failed` 0.00s
+
+            ```
+            def test_failed():
+            >       assert "emoji" == "hello world"
+            E       AssertionError: assert 'emoji' == 'hello world'
+            E         - hello world
+            E         + emoji
+
+            test_emoji_tests.py:5: AssertionError
+            ```
+
+            ## 3 passed
+
+            ### test_emoji_tests.py
+
+            `test_passed[Sara-Hello Sara!]` 0.00s
+
+            `test_passed[Mat-Hello Mat!]` 0.00s
+
+            `test_passed[Annie-Hello Annie!]` 0.00s
+
+            ## 1 skipped
+
+            ### test_emoji_tests.py
+
+            `test_skipped` 0.00s
+
+            ## 1 xfailed
+
+            ### test_emoji_tests.py
+
+            `test_xfailed` 0.00s
+
+            ## 1 xpassed
+
+            ### test_emoji_tests.py
+
+            `test_xpass` 0.00s
+            
+
+            </p>
+            </details>
+            """
+        )
     return textwrap.dedent(
         f"""\
         # Test Report
@@ -402,6 +492,7 @@ def pytest_generate_tests(metafunc):
         [
             Mode.NORMAL,
             Mode.VERBOSE,
+            Mode.COLLAPSE,
             pytest.param(Mode.METADATA, marks=pytest.mark.metadata),
             pytest.param(Mode.EMOJI_NORMAL, marks=pytest.mark.emoji),
             pytest.param(Mode.EMOJI_VERBOSE, marks=pytest.mark.emoji),

@@ -170,7 +170,7 @@ class MarkdownPlugin:
 
         _generate_md(self.config._metadata.items())
 
-        summary = "## Metadata"
+        summary = "Metadata"
 
         return summary, outcome_text
 
@@ -224,15 +224,6 @@ class MarkdownPlugin:
 
         return results
 
-    def create_collapse(self, title, content):
-        return textwrap.dedent(f"""\
-        <details>
-        <summary>{title}</summary>
-        <p>
-        {content}
-        </p>
-        </details>
-        """)
 
     def pytest_sessionfinish(self, session) -> None:
         """Hook implementation that generates a Markdown report and writes it
@@ -246,6 +237,15 @@ class MarkdownPlugin:
         project_link = self.create_project_link()
         summary = self.create_summary()
 
+        def create_collapse(title, content):
+            return "<details>\n"\
+                   f"<summary>{title}</summary>\n"\
+                   "<p>\n\n"\
+                   f"{content}\n"\
+                   f"</p>\n"\
+                   f"</details>\n"\
+                   ""
+
         self.report += f"{header}\n"
         self.report += f"{project_link}\n"
         self.report += f"{summary}\n"
@@ -255,14 +255,14 @@ class MarkdownPlugin:
             title, metadata = self.create_metadata()
 
             if self.config.option.md_collapse:
-                self.report += self.create_collapse(title, metadata)
+                self.report += create_collapse(title, metadata)
             else:
-                self.report += f"{title}\n\n{metadata}"
+                self.report += f"## {title}\n\n{metadata}"
 
         if self.config.option.md_verbose:
             results = self.create_results()
             if self.config.option.md_collapse:
-                self.report += self.create_collapse("Individual test results", results)
+                self.report += create_collapse("Individual test results", results)
             else:
                 self.report += f"{results}"
 

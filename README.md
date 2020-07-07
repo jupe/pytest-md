@@ -119,6 +119,11 @@ $ pytest --emoji --md-verbose --md report.md
 - 1 error 😡
 ```
 
+## Collapse
+
+with argument `--md-collapse` metadata and individual result sections are collapsed (github compatible) by default. 
+This reduce markdown length which are useful if generated report is used in pull request comment.
+
 ## pytest-metadata
 
 **pytest-md** also integrates with [pytest-metadata], which allows us to include
