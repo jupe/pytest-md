@@ -3,7 +3,6 @@ import datetime
 import enum
 import pathlib
 import time
-import textwrap
 from typing import Dict, List
 
 
@@ -155,7 +154,7 @@ class MarkdownPlugin:
 
         return summary + "\n\n" + outcome_text
 
-    def create_metadata(self) -> str:
+    def create_metadata(self) -> tuple:
         """ Create environment section for the Markdown report."""
         outcome_text = ""
 
@@ -223,7 +222,6 @@ class MarkdownPlugin:
                     results += "\n"
 
         return results
-
 
     def pytest_sessionfinish(self, session) -> None:
         """Hook implementation that generates a Markdown report and writes it

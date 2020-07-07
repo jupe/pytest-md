@@ -439,7 +439,7 @@ def fixture_report_content(mode, now):
             ### test_emoji_tests.py
 
             `test_xpass` 0.00s
-            
+
 
             </p>
             </details>
