@@ -240,8 +240,8 @@ class MarkdownPlugin:
         self.report += f"{summary}\n"
 
         if self.metadata_enabled:
-                metadata = self.create_metadata()
-                self.report += f"{metadata}"
+            metadata = self.create_metadata()
+            self.report += f"{metadata}"
 
         if self.config.option.md_verbose:
             results = self.create_results()
