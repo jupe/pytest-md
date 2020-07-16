@@ -22,12 +22,12 @@ class MarkdownPlugin:
 
     def __init__(self, config, report_path,
                  emojis_enabled: bool = False,
-                 metadata_installed: bool = False) -> None:
+                 metadata_enabled: bool = False) -> None:
         self.config = config
         self.report_path = report_path
         self.report = ""
         self.emojis_enabled = emojis_enabled
-        self.metadata_installed = metadata_installed
+        self.metadata_enabled = metadata_enabled
 
         self.reports: Dict[Outcome, List] = collections.defaultdict(list)
 
@@ -162,10 +162,10 @@ class MarkdownPlugin:
             nonlocal outcome_text
             for key, value in items:
                 if isinstance(value, dict):
-                    outcome_text += f'{" "*indentation}- {key}\n'
+                    outcome_text += f'{" "*indentation}* {key}\n'
                     _generate_md(value.items(), indentation+2)
                 else:
-                    outcome_text += f'{" "*indentation}- {key}: {value}\n'
+                    outcome_text += f'{" "*indentation}* {key}: {value}\n'
 
         _generate_md(self.config._metadata.items())
 
@@ -239,10 +239,9 @@ class MarkdownPlugin:
         self.report += f"{project_link}\n"
         self.report += f"{summary}\n"
 
-        if self.config.option.md_metadata:
-            assert self.metadata_installed, 'pytest-metadata is not installed'
-            metadata = self.create_metadata()
-            self.report += f"{metadata}"
+        if self.metadata_enabled and self.config.option.md_metadata:
+                metadata = self.create_metadata()
+                self.report += f"{metadata}"
 
         if self.config.option.md_verbose:
             results = self.create_results()
@@ -293,11 +292,15 @@ def pytest_configure(config) -> None:
 
         return config.option.emoji is True
 
+    def metadata_enabled() -> bool:
+        """ Check if pytest-metadata is installed """
+        return config.pluginmanager.hasplugin('metadata')
+
     config._md = MarkdownPlugin(
         config,
         report_path=pathlib.Path(mdpath).expanduser().resolve(),
         emojis_enabled=emojis_enabled(),
-        metadata_installed=config.pluginmanager.hasplugin('metadata')
+        metadata_enabled=metadata_enabled()
     )
 
     config.pluginmanager.register(config._md, "md_plugin")
