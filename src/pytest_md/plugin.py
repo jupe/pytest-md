@@ -239,7 +239,7 @@ class MarkdownPlugin:
         self.report += f"{project_link}\n"
         self.report += f"{summary}\n"
 
-        if self.metadata_enabled and self.config.option.md_metadata:
+        if self.metadata_enabled:
                 metadata = self.create_metadata()
                 self.report += f"{metadata}"
 
@@ -293,8 +293,10 @@ def pytest_configure(config) -> None:
         return config.option.emoji is True
 
     def metadata_enabled() -> bool:
-        """ Check if pytest-metadata is installed """
-        return config.pluginmanager.hasplugin('metadata')
+        """ Check if pytest-metadata is installed and enabled """
+        if not config.pluginmanager.hasplugin('metadata'):
+            return False
+        return config.option.md_metadata
 
     config._md = MarkdownPlugin(
         config,

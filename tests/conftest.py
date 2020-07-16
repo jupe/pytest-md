@@ -108,7 +108,8 @@ class Mode(enum.Enum):
 
     NORMAL = "normal"
     VERBOSE = "verbose"
-    METADATA = 'metadata'
+    METADATA = "metadata"
+    EMOJI_METADATA = "emoji_metadata"
     EMOJI_NORMAL = "emoji_normal"
     EMOJI_VERBOSE = "emoji_verbose"
 
@@ -120,6 +121,7 @@ def fixture_cli_options(mode):
         Mode.NORMAL: [],
         Mode.VERBOSE: ["--md-verbose"],
         Mode.METADATA: ["--md-metadata", "--metadata", "key", "value"],
+        Mode.EMOJI_METADATA: ["--emoji", "--md-metadata", "--metadata", "key", "value"],
         Mode.EMOJI_NORMAL: ["--emoji"],
         Mode.EMOJI_VERBOSE: ["--md-verbose", "--emoji"],
     }
@@ -273,6 +275,34 @@ def fixture_report_content(mode, now):
             [\\w\\W]+
         """))
 
+    if mode is Mode.EMOJI_METADATA:
+
+        return re.compile(textwrap.dedent(
+            f"""\
+            \\# Test Report
+
+            \\*Report generated on {report_date} at {report_time} by \\[pytest-md\\]\\* \\📝
+
+            \\[pytest-md\\]\\: https://github\\.com/hackebrot/pytest-md
+
+            \\#\\# Summary
+
+            8 tests ran in 0.00 seconds \\⏱
+
+            - 1 \\💩
+            - 1 \\😿
+            - 3 \\🦊
+            - 1 \\🙈
+            - 1 \\🤓
+            - 1 \\😜
+
+            \\#\\# Metadata
+
+            [\\w\\W]+
+            * key\\: value
+            [\\w\\W]+
+        """))
+
     # Return the default report for Mode.NORMAL and Mode.VERBOSE
     if mode is Mode.VERBOSE:
         return textwrap.dedent(
@@ -405,6 +435,7 @@ def pytest_generate_tests(metafunc):
             pytest.param(Mode.METADATA, marks=pytest.mark.metadata),
             pytest.param(Mode.EMOJI_NORMAL, marks=pytest.mark.emoji),
             pytest.param(Mode.EMOJI_VERBOSE, marks=pytest.mark.emoji),
+            pytest.param(Mode.EMOJI_METADATA, marks=[pytest.mark.emoji,pytest.mark.metadata]),
         ],
     )
 
