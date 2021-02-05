@@ -167,8 +167,7 @@ class MarkdownPlugin:
                 else:
                     outcome_text += f'{" "*indentation}- {key}: {value}\n'
 
-        _generate_md(self.config._metadata.items())
-
+        _generate_md(self.config.known_args_namespace.metadata)
         summary = "Metadata"
 
         return summary, outcome_text
