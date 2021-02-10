@@ -270,9 +270,7 @@ def fixture_report_content(mode, now):
 
             \\#\\# Metadata
 
-            [\\w\\W]+
             - key\\: value
-            [\\w\\W]+
         """))
 
     # Return the default report for Mode.NORMAL and Mode.VERBOSE
