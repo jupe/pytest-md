@@ -22,12 +22,12 @@ class MarkdownPlugin:
 
     def __init__(self, config, report_path,
                  emojis_enabled: bool = False,
-                 metadata_installed: bool = False) -> None:
+                 metadata_enabled: bool = False) -> None:
         self.config = config
         self.report_path = report_path
         self.report = ""
         self.emojis_enabled = emojis_enabled
-        self.metadata_installed = metadata_installed
+        self.metadata_enabled = metadata_enabled
 
         self.reports: Dict[Outcome, List] = collections.defaultdict(list)
 
@@ -162,10 +162,10 @@ class MarkdownPlugin:
             nonlocal outcome_text
             for key, value in items:
                 if isinstance(value, dict):
-                    outcome_text += f'{" "*indentation}- {key}\n'
+                    outcome_text += f'{" "*indentation}* {key}\n'
                     _generate_md(value.items(), indentation+2)
                 else:
-                    outcome_text += f'{" "*indentation}- {key}: {value}\n'
+                    outcome_text += f'{" "*indentation}* {key}: {value}\n'
 
         _generate_md(self.config.known_args_namespace.metadata)
         summary = "Metadata"
@@ -247,8 +247,7 @@ class MarkdownPlugin:
         self.report += f"{project_link}\n"
         self.report += f"{summary}\n"
 
-        if self.config.option.md_metadata:
-            assert self.metadata_installed, 'pytest-metadata is not installed'
+        if self.metadata_enabled:
             title, metadata = self.create_metadata()
 
             if self.config.option.md_collapse:
@@ -314,11 +313,17 @@ def pytest_configure(config) -> None:
 
         return config.option.emoji is True
 
+    def metadata_enabled() -> bool:
+        """ Check if pytest-metadata is installed and enabled """
+        if not config.pluginmanager.hasplugin('metadata'):
+            return False
+        return config.option.md_metadata
+
     config._md = MarkdownPlugin(
         config,
         report_path=pathlib.Path(mdpath).expanduser().resolve(),
         emojis_enabled=emojis_enabled(),
-        metadata_installed=config.pluginmanager.hasplugin('metadata')
+        metadata_enabled=metadata_enabled()
     )
 
     config.pluginmanager.register(config._md, "md_plugin")
