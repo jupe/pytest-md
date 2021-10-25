@@ -272,10 +272,7 @@ def fixture_report_content(mode, now):
 
             \\#\\# Metadata
 
-            - key\\: value
-            [\\w\\W]+
-            * key\\: value
-            [\\w\\W]+
+            \\* key\\: value
         """))
 
     if mode is Mode.EMOJI_METADATA:
@@ -301,9 +298,7 @@ def fixture_report_content(mode, now):
 
             \\#\\# Metadata
 
-            [\\w\\W]+
-            * key\\: value
-            [\\w\\W]+
+            \\* key\\: value
         """))
 
     # Return the default report for Mode.NORMAL and Mode.VERBOSE
